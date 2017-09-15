@@ -21,7 +21,8 @@ local function hasAccess(ply, target, command)
 
 	if sbox_E2_PlyCore:GetInt() == 1 then
 		return true
-	elseif sbox_E2_PlyCore:GetInt() == 2 then 
+	elseif sbox_E2_PlyCore:GetInt() == 2 then
+		if not target then return true end
 		if target:IsBot() then return true end
 		if ply == target then return true end
 		if ply:IsAdmin() then return true end
@@ -47,8 +48,8 @@ end
 
 local function check(v)
 	return	-math.huge < v[1] and v[1] < math.huge and
-	      		-math.huge < v[2] and v[2] < math.huge and
-	      		-math.huge < v[3] and v[3] < math.huge
+			-math.huge < v[2] and v[2] < math.huge and
+			-math.huge < v[3] and v[3] < math.huge
 end
 
 
@@ -58,7 +59,7 @@ end
 e2function void entity:plyApplyForce(vector force)
 	if not ValidPly(this) then return nil end
 	if not hasAccess(self.player, this, "applyforce") then return nil end
-	
+
 	if check(force) then
 		this:SetVelocity(Vector(force[1],force[2],force[3]))
 	end
@@ -166,7 +167,7 @@ e2function void entity:plySetSpeed(number speed)
 	if not ValidPly(this) then return nil end
 	if not hasAccess(self.player, this, "setspeed") then return nil end
 
-	
+
 	this:SetWalkSpeed(math.Clamp(speed, 1, 10000))
 	this:SetRunSpeed(math.Clamp(speed*2, 1, 10000))
 end
@@ -204,12 +205,12 @@ e2function void entity:plyResetSettings()
 	this:Armor(0)
 end
 
-e2function void entity:plyEnterVehicle(entity vehicle) 
+e2function void entity:plyEnterVehicle(entity vehicle)
 	if not ValidPly(this) then return nil end
 	if not hasAccess(self.player, this, "entervehicle") then return nil end
 	if not vehicle or not vehicle:IsValid() or not vehicle:IsVehicle() then return nil end
 
-	
+
 	if this:InVehicle() then this:ExitVehicle() end
 
 	this:EnterVehicle(vehicle)
@@ -273,7 +274,7 @@ end
 
 hook.Add("PlayerNoClip", "PlyCore", function(ply, state)
 	if not state then return end
-	
+
 	if ply:GetNWBool("PlyCore_DisableNoclip", false) then
 		return false
 	end
@@ -295,8 +296,44 @@ end
 
 e2function number entity:plyHasGod()
 	if not ValidPly(this) then return nil end
-	
+
 	return this:HasGodMode() and 1 or 0
+end
+
+e2function void entity:plyIgnite(time)
+	if not ValidPly(this) then return nil end
+	if not hasAccess(self.player, this, "ignite") then return nil end
+
+	this:Ignite(math.Clamp(time, 1, 3600))
+end
+
+e2function void entity:plyIgnite()
+	if not ValidPly(this) then return nil end
+	if not hasAccess(self.player, this, "ignite") then return nil end
+
+	this:Ignite(60)
+end
+
+e2function void entity:plyExtinguish()
+	if not ValidPly(this) then return nil end
+	if not hasAccess(self.player, this, "extinguish") then return nil end
+
+	this:Extinguish()
+end
+
+e2function string entity:ip()
+	if not ValidPly(this) or this:IsBot() then return "" end
+	local valid = hook.Call("PlyCoreCommand", GAMEMODE, self.player, nil, "getip")
+
+	if valid == nil then
+		valid = self.player:IsAdmin()
+	end
+
+	if valid then
+		return this:IPAddress()
+	end
+
+	return ""
 end
 
 -- Message
@@ -436,23 +473,23 @@ local function printColorArray(ply, target, arr)
 end
 
 e2function void sendMessageColor(array arr)
-	if not ValidPly(this) then return end
+	-- if not ValidPly(this) then return end
 	if not hasAccess(self.player, nil, "globalmessagecolor") then return nil end
-	
-	printColorArray(self.player, this, arr)
+
+	printColorArray(self.player, player.GetAll(), arr)
 end
 
 e2function void sendMessageColor(...)
-	if not ValidPly(this) then return end
+	-- if not ValidPly(this) then return end
 	if not hasAccess(self.player, nil, "globalmessagecolor") then return nil end
 
-	printColorVarArg(self.player, this, typeids, ...)
+	printColorVarArg(self.player, player.GetAll(), typeids, ...)
 end
 
 e2function void entity:sendMessageColor(array arr)
 	if not ValidPly(this) then return end
 	if not hasAccess(self.player, this, "messagecolor") then return nil end
-	
+
 	printColorArray(self.player, this, arr)
 end
 
@@ -485,7 +522,7 @@ e2function void array:sendMessageColor(...)
 
 		table.insert(plys, ply)
 	end
-	
+
 	printColorVarArg(self.player, plys, typeids, ...)
 end
 
@@ -495,24 +532,24 @@ end
 local registered_e2s_spawn = {}
 local lastspawnedplayer = NULL
 local respawnrun = 0
- 
+
 registerCallback("destruct",function(self)
 		registered_e2s_spawn[self.entity] = nil
 end)
- 
+
 hook.Add("PlayerSpawn","Expresion2_PlayerSpawn", function(ply)
 	local ents = {}
-	
+
 	for entity,_ in pairs(registered_e2s_spawn) do
 		if entity:IsValid() then table.insert(ents, entity) end
 	end
-	
+
 	respawnrun = 1
 	lastspawnedplayer = ply
 	for _,entity in ipairs(ents) do
 		entity:Execute()
 	end
-	respawnrun = 0	
+	respawnrun = 0
 end)
 
 e2function void runOnSpawn(activate)
@@ -522,7 +559,7 @@ e2function void runOnSpawn(activate)
 		registered_e2s_spawn[self.entity] = nil
 	end
 end
- 
+
 e2function number spawnClk()
 	return respawnrun
 end
@@ -536,24 +573,24 @@ end
 local registered_e2s_death = {}
 local playerdeathinfo = {[1]=NULL, [2]=NULL, [3]=NULL}
 local deathrun = 0
- 
+
 registerCallback("destruct",function(self)
 		registered_e2s_death[self.entity] = nil
 end)
- 
+
 hook.Add("PlayerDeath","Expresion2_PlayerDeath", function(victim, inflictor, attacker)
 	local ents = {}
-	
+
 	for entity,_ in pairs(registered_e2s_death) do
 		if entity:IsValid() then table.insert(ents, entity) end
 	end
-	
+
 	deathrun = 1
 	playerdeathinfo = { victim, inflictor, attacker}
 	for _,entity in ipairs(ents) do
 		entity:Execute()
 	end
-	deathrun = 0	
+	deathrun = 0
 end)
 
 e2function void runOnDeath(activate)
@@ -563,7 +600,7 @@ e2function void runOnDeath(activate)
 		registered_e2s_death[self.entity] = nil
 	end
 end
- 
+
 e2function number deathClk()
 	return deathrun
 end
@@ -585,22 +622,22 @@ end
 local registered_e2s_connect = {}
 local lastconnectedplayer = NULL
 local connectrun = 0
- 
+
 registerCallback("destruct",function(self)
 		registered_e2s_connect[self.entity] = nil
 end)
- 
+
 hook.Add("PlayerInitialSpawn","Expresion2_PlayerInitialSpawn", function(ply)
 	connectrun = 1
 	lastconnectedplayer = ply
 
 	for entity,_ in pairs(registered_e2s_connect) do
-		if entity:IsValid() then 
+		if entity:IsValid() then
 			entity:Execute()
 		end
 	end
 
-	connectrun = 0	
+	connectrun = 0
 end)
 
 e2function void runOnConnect(activate)
@@ -610,7 +647,7 @@ e2function void runOnConnect(activate)
 		registered_e2s_connect[self.entity] = nil
 	end
 end
- 
+
 e2function number connectClk()
 	return connectrun
 end
@@ -624,22 +661,22 @@ end
 local registered_e2s_disconnect = {}
 local lastdisconnectedplayer = NULL
 local disconnectrun = 0
- 
+
 registerCallback("destruct",function(self)
 		registered_e2s_disconnect[self.entity] = nil
 end)
- 
+
 hook.Add("PlayerDisconnected","Expresion2_PlayerDisconnected", function(ply)
 	disconnectrun = 1
 	lastdisconnectedplayer = ply
 
 	for entity,_ in pairs(registered_e2s_disconnect) do
-		if entity:IsValid() then 
+		if entity:IsValid() then
 			entity:Execute()
 		end
 	end
 
-	disconnectrun = 0	
+	disconnectrun = 0
 end)
 
 e2function void runOnDisconnect(activate)
@@ -649,7 +686,7 @@ e2function void runOnDisconnect(activate)
 		registered_e2s_disconnect[self.entity] = nil
 	end
 end
- 
+
 e2function number disconnectClk()
 	return disconnectrun
 end

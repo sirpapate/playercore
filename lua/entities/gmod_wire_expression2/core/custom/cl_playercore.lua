@@ -29,17 +29,17 @@ net.Receive("wire_expression2_playercore_sendmessage", function( len, ply )
 		-- printColorDriver is used for the first time on us by this chip
 		WireLib.AddNotify(msg1, NOTIFY_GENERIC, 7, NOTIFYSOUND_DRIP3)
 		WireLib.AddNotify(msg2, NOTIFY_GENERIC, 7)
-		chat.AddText(Color(255,0,0),"After this message, ", ply, " can send you a 100% realistically fake people talking, including admins.")
-		chat.AddText(Color(255,0,0),"Look the console to see if the message is form an expression2")
+		chat.AddText(Color(255, 50, 50),"After this message, ", ply, " can send you a 100% realistically fake people talking, including admins.")
+		chat.AddText(Color(255, 50, 50),"Look the console to see if the message is form an expression2")
 	end
-	
+
 	LocalPlayer():PrintMessage(HUD_PRINTCONSOLE, "[E2] " .. ply:Name() .. ": ")
-	chat.AddText(unpack(net.ReadTable()))
+	chat.AddText(Color(255, 50, 50), "> ", Color(151, 211, 255), unpack(net.ReadTable()))
 end)
 
 hook.Add("PlayerNoClip", "PlyCore", function(ply, state)
 	if not state then return end
-	
+
 	if ply:GetNWBool("PlyCore_DisableNoclip", false) then
 		return false
 	end
