@@ -414,7 +414,7 @@ local function printColorVarArg(ply, target, typeids, ...)
 		end
 	end
 
-	target = isentity(target) and {target}
+	target = isentity(target) and {target} or target
 	target = target or player.GetAll()
 
 	local plys = {}
@@ -456,7 +456,7 @@ local function printColorArray(ply, target, arr)
 		end
 	end
 
-	target = isentity(target) and {target}
+	target = isentity(target) and {target} or target
 	target = target or player.GetAll()
 
 	local plys = {}

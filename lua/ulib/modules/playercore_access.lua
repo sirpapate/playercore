@@ -40,10 +40,11 @@ if SERVER then
 		ULib.ucl.registerAccess("messagecolor",			{"user", "operator", "admin", "superadmin"},	"",	"PlayerCore")
 		ULib.ucl.registerAccess("globalmessage",		{"user", "operator", "admin", "superadmin"},	"",	"PlayerCore")
 		ULib.ucl.registerAccess("globalmessagecenter",	{"user", "operator", "admin", "superadmin"},	"",	"PlayerCore")
+		ULib.ucl.registerAccess("globalmessagecolor",	{"user", "operator", "admin", "superadmin"},	"",	"PlayerCore")
 
 		hook.Add("PlyCoreCommand", "ULX_PlyCore_Access", function(ply, target, command)
 			if ULib.ucl.query(ply, command) then
-				if not IsValid(target) or target:IsPlayer() then return true end
+				if not IsValid(target) then return true end
 
 				if ULib.ucl.query(ply, "target_himself") then
 					if ply == target then
