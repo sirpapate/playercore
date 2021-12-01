@@ -328,15 +328,11 @@ end
 e2function void sendMessageCenter(string text)
 end
 
---
-
 e2function void entity:sendMessage(string text)
 end
 
 e2function void entity:sendMessageCenter(string text)
 end
-
---
 
 e2function void array:sendMessage(string text)
 end
