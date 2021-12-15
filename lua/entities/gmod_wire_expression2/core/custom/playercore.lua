@@ -3,13 +3,13 @@ E2Lib.RegisterExtension("playercore", true)
 
 local sbox_E2_PlyCore = CreateConVar("sbox_E2_PlyCore", "2", FCVAR_ARCHIVE)
 
+local IsValid = IsValid
 local function ValidPly(ply)
     if not IsValid( ply ) then return false end
     if not ply:IsPlayer() then return false end
 
     return true
 end
-
 
 local function hasAccess(ply, target, command)
     local valid = hook.Run("PlyCoreCommand", ply, target, command)
@@ -39,10 +39,9 @@ local function hasAccess(ply, target, command)
         if not ply:IsAdmin() then return false end
 
         return true
-    else
-        return false
     end
 
+    return false
 end
 
 local function check(v)
@@ -56,181 +55,180 @@ end
 --Make applyForce on player
 
 e2function void entity:plyApplyForce(vector force)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "applyforce") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "applyforce") then return nil end
 
-if check(force) then
-    this:SetVelocity(Vector(force[1],force[2],force[3]))
-end
+    if check(force) then
+        this:SetVelocity(Vector(force[1],force[2],force[3]))
+    end
 end
 --SetPosition
 
 e2function void entity:plySetPos(vector pos)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setpos") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setpos") then return nil end
 
-this:SetPos(Vector(math.Clamp(pos[1],-16000,16000), math.Clamp(pos[2],-16000,16000), math.Clamp(pos[3],-16000,16000)))
+    this:SetPos(Vector(math.Clamp(pos[1],-16000,16000), math.Clamp(pos[2],-16000,16000), math.Clamp(pos[3],-16000,16000)))
 end
 
 --SetEyeAngles
 
 e2function void entity:plySetAng(angle ang)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setang") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setang") then return nil end
 
-local normalizedAng = Angle(ang[1], ang[2], ang[3])
-normalizedAng:Normalize()
-this:SetEyeAngles(normalizedAng)
+    local normalizedAng = Angle(ang[1], ang[2], ang[3])
+    normalizedAng:Normalize()
+    this:SetEyeAngles(normalizedAng)
 end
 
 --Noclip
 
 e2function void entity:plyNoclip(number activate)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "noclip") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "noclip") then return nil end
 
-if activate > 0 then
-    this:SetMoveType(MOVETYPE_NOCLIP)
-else
-    this:SetMoveType(MOVETYPE_WALK)
-end
+    if activate > 0 then
+        this:SetMoveType(MOVETYPE_NOCLIP)
+    else
+        this:SetMoveType(MOVETYPE_WALK)
+    end
 end
 
 --Health
 
 e2function void entity:plySetHealth(number health)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "sethealth") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "sethealth") then return nil end
 
-this:SetHealth(math.Clamp(health, 0, 2^32/2-1))
+    this:SetHealth(math.Clamp(health, 0, 2^32/2-1))
 end
 
 -- Armor
 
 e2function void entity:plySetArmor(number armor)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setarmor") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setarmor") then return nil end
 
-this:SetArmor(math.Clamp(armor, 0, 2^32/2-1))
+    this:SetArmor(math.Clamp(armor, 0, 2^32/2-1))
 end
 
 -- Mass
 
 e2function void entity:plySetMass(number mass)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setmass") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setmass") then return nil end
 
-this:GetPhysicsObject():SetMass(math.Clamp(mass, 1, 50000))
+    this:GetPhysicsObject():SetMass(math.Clamp(mass, 1, 50000))
 end
 
 e2function number entity:plyGetMass()
-if not ValidPly(this) then return nil end
+    if not ValidPly(this) then return nil end
 
-return this:GetPhysicsObject():GetMass()
+    return this:GetPhysicsObject():GetMass()
 end
 
 --	JumpPower
 
 e2function void entity:plySetJumpPower(number jumpPower)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setjumppower") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setjumppower") then return nil end
 
-this:SetJumpPower(math.Clamp(jumpPower, 0, 2^32/2-1))
+    this:SetJumpPower(math.Clamp(jumpPower, 0, 2^32/2-1))
 end
 
 e2function number entity:plyGetJumpPower()
-if not ValidPly(this) then return nil end
+    if not ValidPly(this) then return nil end
 
-return this:GetJumpPower()
+    return this:GetJumpPower()
 end
 
 --	Gravity
 
 e2function void entity:plySetGravity(number gravity)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setgravity") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setgravity") then return nil end
 
-if gravity == 0 then gravity = 1/10^10 end
-this:SetGravity(gravity/600)
+    if gravity == 0 then gravity = 1/10^10 end
+    this:SetGravity(gravity/600)
 end
 
 e2function number entity:plyGetGravity()
-if not ValidPly(this) then return nil end
+    if not ValidPly(this) then return nil end
 
-return this:GetGravity()*600
+    return this:GetGravity()*600
 end
 
 --	Speed
 
 e2function void entity:plySetSpeed(number speed)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setspeed") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setspeed") then return nil end
 
-
-this:SetWalkSpeed(math.Clamp(speed, 1, 10000))
-this:SetRunSpeed(math.Clamp(speed*2, 1, 10000))
+    this:SetWalkSpeed(math.Clamp(speed, 1, 10000))
+    this:SetRunSpeed(math.Clamp(speed*2, 1, 10000))
 end
 
 e2function void entity:plySetRunSpeed(number speed)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setrunspeed") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setrunspeed") then return nil end
 
-this:SetRunSpeed(math.Clamp(speed*2, 1, 10000))
+    this:SetRunSpeed(math.Clamp(speed*2, 1, 10000))
 end
 
 e2function void entity:plySetWalkSpeed(number speed)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "setwalkspeed") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "setwalkspeed") then return nil end
 
-this:SetWalkSpeed(math.Clamp(speed, 1, 10000))
+    this:SetWalkSpeed(math.Clamp(speed, 1, 10000))
 end
 
 e2function number entity:plyGetSpeed()
-if not ValidPly(this) then return nil end
+    if not ValidPly(this) then return nil end
 
-return this:GetWalkSpeed()
+    return this:GetWalkSpeed()
 end
 
 e2function void entity:plyResetSettings()
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "resetsettings") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "resetsettings") then return nil end
 
-this:Health(100)
-this:GetPhysicsObject():SetMass(85)
-this:SetJumpPower(200)
-this:SetGravity(1)
-this:SetWalkSpeed(200)
-this:SetRunSpeed(400)
-this:Armor(0)
+    this:Health(100)
+    this:GetPhysicsObject():SetMass(85)
+    this:SetJumpPower(200)
+    this:SetGravity(1)
+    this:SetWalkSpeed(200)
+    this:SetRunSpeed(400)
+    this:Armor(0)
 end
 
 e2function void entity:plyEnterVehicle(entity vehicle)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "entervehicle") then return nil end
-if not vehicle or not vehicle:IsValid() or not vehicle:IsVehicle() then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "entervehicle") then return nil end
+    if not vehicle or not vehicle:IsValid() or not vehicle:IsVehicle() then return nil end
 
 
-if this:InVehicle() then this:ExitVehicle() end
+    if this:InVehicle() then this:ExitVehicle() end
 
-this:EnterVehicle(vehicle)
+    this:EnterVehicle(vehicle)
 end
 
 e2function void entity:plyExitVehicle()
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "exitvehicle") then return nil end
-if not this:InVehicle() then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "exitvehicle") then return nil end
+    if not this:InVehicle() then return nil end
 
-this:ExitVehicle()
+    this:ExitVehicle()
 end
 
 e2function void entity:plySpawn()
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "spawn") then return nil end
-if not this.e2PcLastSpawn then this.e2PcLastSpawn = CurTime()-1 end
-if (CurTime() - this.e2PcLastSpawn) < 1 then return nil end
-this.e2PcLastSpawn = CurTime()
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "spawn") then return nil end
+    if not this.e2PcLastSpawn then this.e2PcLastSpawn = CurTime()-1 end
+    if (CurTime() - this.e2PcLastSpawn) < 1 then return nil end
+    this.e2PcLastSpawn = CurTime()
 
-this:Spawn()
+    this:Spawn()
 end
 
 -- Freeze
@@ -248,27 +246,27 @@ registerCallback("destruct",function(self)
 end)
 
 e2function void entity:plyFreeze(number freeze)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "freeze") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "freeze") then return nil end
 
-this.plycore_freezeby = self
-this:Freeze(freeze == 1)
+    this.plycore_freezeby = self
+    this:Freeze(freeze == 1)
 end
 
 e2function number entity:plyIsFrozen()
-if not ValidPly(this) then return nil end
+    if not ValidPly(this) then return nil end
 
-return this:IsFlagSet(FL_FROZEN)
+    return this:IsFlagSet(FL_FROZEN)
 end
 
 -- DisableNoclip
 
 e2function void entity:plyDisableNoclip(number act)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "disablenoclip") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "disablenoclip") then return nil end
 
-this.plycore_noclipdiabledby = self
-this:SetNWBool("PlyCore_DisableNoclip", act == 1)
+    this.plycore_noclipdiabledby = self
+    this:SetNWBool("PlyCore_DisableNoclip", act == 1)
 end
 
 hook.Add("PlayerNoClip", "PlyCore", function(ply, state)
@@ -282,42 +280,42 @@ end)
 -- God
 
 e2function void entity:plyGod(number active)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "god") then return nil end
-if not active == 1 then active = 0 end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "god") then return nil end
+    if not active == 1 then active = 0 end
 
-if active == 1 then
-    this:GodEnable()
-else
-    this:GodDisable()
-end
+    if active == 1 then
+        this:GodEnable()
+    else
+        this:GodDisable()
+    end
 end
 
 e2function number entity:plyHasGod()
-if not ValidPly(this) then return nil end
+    if not ValidPly(this) then return nil end
 
-return this:HasGodMode() and 1 or 0
+    return this:HasGodMode() and 1 or 0
 end
 
 e2function void entity:plyIgnite(time)
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "ignite") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "ignite") then return nil end
 
-this:Ignite(math.Clamp(time, 1, 3600))
+    this:Ignite(math.Clamp(time, 1, 3600))
 end
 
 e2function void entity:plyIgnite()
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "ignite") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "ignite") then return nil end
 
-this:Ignite(60)
+    this:Ignite(60)
 end
 
 e2function void entity:plyExtinguish()
-if not ValidPly(this) then return nil end
-if not hasAccess(self.player, this, "extinguish") then return nil end
+    if not ValidPly(this) then return nil end
+    if not hasAccess(self.player, this, "extinguish") then return nil end
 
-this:Extinguish()
+    this:Extinguish()
 end
 
 -- Message
@@ -421,25 +419,61 @@ local function printColorArray(ply, target, arr)
 end
 
 e2function void sendMessageColor(array arr)
--- if not ValidPly(this) then return end
-if not hasAccess(self.player, nil, "globalmessagecolor") then return nil end
+    if not hasAccess(self.player, nil, "globalmessagecolor") then return nil end
 
-printColorArray(self.player, player.GetAll(), arr)
+    printColorArray(self.player, player.GetAll(), arr)
 end
 
 e2function void sendMessageColor(...)
+	if not hasAccess(self.player, nil, "globalmessagecolor") then return nil end
+
+	printColorVarArg(self.player, player.GetAll(), typeids, ...)
 end
 
 e2function void entity:sendMessageColor(array arr)
+	if not ValidPly(this) then return end
+	if not hasAccess(self.player, this, "messagecolor") then return nil end
+
+	printColorArray(self.player, this, arr)
 end
 
 e2function void entity:sendMessageColor(...)
+	if not ValidPly(this) then return end
+	if not hasAccess(self.player, this, "messagecolor") then return nil end
+
+	printColorVarArg(self.player, this, typeids, ...)
 end
 
-e2function void array:sendMessageColor(array arr)
+e2function void array:sendMessageColor(array arr) 
+    if not hasAccess(self.player, nil, "messagecolor") then return end
+
+	local plys = {}
+
+	for _, ply in pairs(this) do
+		if ValidPly(ply) then 
+            if hasAccess(self.player, ply, "messagecolor") ~= false then
+                table.insert(plys, ply)
+            end
+        end
+	end
+
+	printColorArray(self.player, plys, arr)
 end
 
 e2function void array:sendMessageColor(...)
+    if not hasAccess(self.player, nil, "messagecolor") then return end
+
+	local plys = {}
+
+	for _, ply in pairs(this) do
+		if ValidPly(ply) then
+            if hasAccess(self.player, ply, "messagecolor") ~= false then
+                table.insert(plys, ply)
+            end
+        end
+	end
+
+	printColorVarArg(self.player, plys, typeids, ...)
 end
 
 
@@ -477,11 +511,11 @@ end
 end
 
 e2function number spawnClk()
-return respawnrun
+    return respawnrun
 end
 
 e2function entity lastSpawnedPlayer()
-return lastspawnedplayer
+    return lastspawnedplayer
 end
 
 --[[############################################]]
@@ -518,19 +552,19 @@ end
 end
 
 e2function number deathClk()
-return deathrun
+    return deathrun
 end
 
 e2function entity lastDeath()
-return playerdeathinfo[1]
+    return playerdeathinfo[1]
 end
 
 e2function entity lastDeathInflictor()
-return playerdeathinfo[2]
+    return playerdeathinfo[2]
 end
 
 e2function entity lastDeathAttacker()
-return playerdeathinfo[3]
+    return playerdeathinfo[3]
 end
 
 --[[############################################]]
@@ -567,11 +601,11 @@ end
 end
 
 e2function number connectClk()
-return connectrun
+    return connectrun
 end
 
 e2function entity lastConnectedPlayer()
-return lastconnectedplayer
+    return lastconnectedplayer
 end
 
 --[[############################################]]
@@ -608,9 +642,9 @@ end
 end
 
 e2function number disconnectClk()
-return disconnectrun
+    return disconnectrun
 end
 
 e2function entity lastDisconnectedPlayer()
-return lastdisconnectedplayer
+    return lastdisconnectedplayer
 end
