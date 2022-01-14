@@ -19,20 +19,20 @@ E2Helper.Descriptions["plyGetJumpPower"] = "Returns the jump power of the player
 E2Helper.Descriptions["plyGetGravity"] = "Gets the gravity multiplier of the player."
 E2Helper.Descriptions["plyGetSpeed"] = "Gets the speed of the player."
 
--- local plys = {}
+local plys = {}
 net.Receive("wire_expression2_playercore_sendmessage", function( len, ply )
-    -- local ply = net.ReadEntity()
-    -- if ply and not plys[ply] then
-    -- 	plys[ply] = true
-    -- 	-- printColorDriver is used for the first time on us by this chip
-    -- 	WireLib.AddNotify(msg1, NOTIFY_GENERIC, 7, NOTIFYSOUND_DRIP3)
-    -- 	WireLib.AddNotify(msg2, NOTIFY_GENERIC, 7)
-    -- 	chat.AddText(Color(255, 50, 50),"After this message, ", ply, " can send you a 100% realistically fake people talking, including admins.")
-    -- 	chat.AddText(Color(255, 50, 50),"Look the console to see if the message is form an expression2")
-    -- end
+    local ply = net.ReadEntity()
+    if ply and not plys[ply] then
+    plys[ply] = true
+    -- printColorDriver is used for the first time on us by this chip
+    WireLib.AddNotify(msg1, NOTIFY_GENERIC, 7, NOTIFYSOUND_DRIP3)
+    WireLib.AddNotify(msg2, NOTIFY_GENERIC, 7)
+    chat.AddText(Color(255, 50, 50),"After this message, ", ply, " can send you a 100% realistically fake people talking, including admins.")
+    chat.AddText(Color(255, 50, 50),"Look the console to see if the message is form an expression2")
+    end
 
-    -- LocalPlayer():PrintMessage(HUD_PRINTCONSOLE, "[E2] " .. ply:Name() .. ": ")
-    -- chat.AddText(Color(255, 50, 50), "> ", Color(151, 211, 255), unpack(net.ReadTable()))
+    LocalPlayer():PrintMessage(HUD_PRINTCONSOLE, "[E2] " .. ply:Name() .. ": ")
+    chat.AddText(Color(255, 50, 50), "> ", Color(151, 211, 255), unpack(net.ReadTable()))
 end)
 
 hook.Add("PlayerNoClip", "PlyCore", function(ply, state)
