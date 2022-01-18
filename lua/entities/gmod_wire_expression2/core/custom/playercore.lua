@@ -492,7 +492,7 @@ hook.Add("PlayerSpawn","PlyCore_PlayerSpawn", function(ply)
     lastspawnedplayer = ply
 
     for e2 in pairs(registered_e2s_spawn) do
-        if IsValid( e2:IsValid() ) then
+        if IsValid( e2 ) then
             e2:Execute()
         else
             registered_e2s_spawn[e2] = nil
@@ -534,7 +534,7 @@ hook.Add("PlayerDeath", "PlyCore_PlayerDeath", function(victim, inflictor, attac
 
     for e2 in pairs(registered_e2s_death) do
         if IsValid( e2 ) then
-            entity:Execute()
+            e2:Execute()
         else
             registered_e2s_death[e2] = nil
         end
@@ -583,7 +583,7 @@ hook.Add("PlayerInitialSpawn","PlyCore_PlayerInitialSpawn", function(ply)
 
     for e2 in pairs(registered_e2s_connect) do
         if IsValid( e2 ) then
-            entity:Execute()
+            e2:Execute()
         else
             registered_e2s_connect[e2] = nil
         end
@@ -624,7 +624,7 @@ hook.Add("PlayerDisconnected","PlyCore_PlayerDisconnected", function(ply)
 
     for e2 in pairs(registered_e2s_disconnect) do
         if IsValid( e2 ) then
-            entity:Execute()
+            e2:Execute()
         else
             registered_e2s_disconnect[e2] = nil
         end
