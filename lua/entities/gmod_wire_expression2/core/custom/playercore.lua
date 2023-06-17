@@ -530,45 +530,6 @@ end
 --[[############################################]]
 
 local registered_e2s_spawn = {}
-local lastspawnedplayer = NULL
-local respawnrun = 0
-
-registerCallback("destruct",function(self)
-		registered_e2s_spawn[self.entity] = nil
-end)
-
-hook.Add("PlayerSpawn","Expresion2_PlayerSpawn", function(ply)
-	local ents = {}
-
-	for entity,_ in pairs(registered_e2s_spawn) do
-		if entity:IsValid() then table.insert(ents, entity) end
-	end
-
-	respawnrun = 1
-	lastspawnedplayer = ply
-	for _,entity in ipairs(ents) do
-		entity:Execute()
-	end
-	respawnrun = 0
-end)
-
-e2function void runOnSpawn(activate)
-	if activate ~= 0 then
-		registered_e2s_spawn[self.entity] = true
-	else
-		registered_e2s_spawn[self.entity] = nil
-	end
-end
-
-e2function number spawnClk()
-	return respawnrun
-end
-
-e2function entity lastSpawnedPlayer()
-	return lastspawnedplayer
-end
-
---[[############################################]]
 
 local registered_e2s_death = {}
 local playerdeathinfo = {[1]=NULL, [2]=NULL, [3]=NULL}
