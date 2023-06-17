@@ -554,6 +554,7 @@ hook.Add("PlayerDeath","Expresion2_PlayerDeath", function(victim, inflictor, att
 	deathrun = 0
 end)
 
+[deprecated = "Use the playerDeath event instead"]
 e2function void runOnDeath(activate)
 	if activate ~= 0 then
 		registered_e2s_death[self.entity] = true
@@ -562,23 +563,29 @@ e2function void runOnDeath(activate)
 	end
 end
 
+[deprecated = "Use the playerDeath event instead"]
 e2function number deathClk()
 	return deathrun
 end
 
+[nodiscard, deprecated = "Use the playerDeath event instead"]
 e2function entity lastDeath()
 	return playerdeathinfo[1]
 end
 
+[nodiscard, deprecated = "Use the playerDeath event instead"]
 e2function entity lastDeathInflictor()
 	return playerdeathinfo[2]
 end
 
+[nodiscard, deprecated = "Use the playerDeath event instead"]
 e2function entity lastDeathAttacker()
 	return playerdeathinfo[3]
 end
 
 --[[############################################]]
+
+-- Connect functions cannot be removed because there name does not match the E2 core.
 
 local registered_e2s_connect = {}
 local lastconnectedplayer = NULL
@@ -601,6 +608,7 @@ hook.Add("PlayerInitialSpawn","Expresion2_PlayerInitialSpawn", function(ply)
 	connectrun = 0
 end)
 
+[deprecated = "Use the playerConnected event instead"]
 e2function void runOnConnect(activate)
 	if activate ~= 0 then
 		registered_e2s_connect[self.entity] = true
@@ -609,10 +617,12 @@ e2function void runOnConnect(activate)
 	end
 end
 
+[nodiscard, deprecated = "Use the playerConnected event instead"]
 e2function number connectClk()
 	return connectrun
 end
 
+[nodiscard, deprecated = "Use the playerConnected event instead"]
 e2function entity lastConnectedPlayer()
 	return lastconnectedplayer
 end
@@ -640,6 +650,7 @@ hook.Add("PlayerDisconnected","Expresion2_PlayerDisconnected", function(ply)
 	disconnectrun = 0
 end)
 
+[nodiscard, deprecated = "Use the playerDisconnected event instead"]
 e2function void runOnDisconnect(activate)
 	if activate ~= 0 then
 		registered_e2s_disconnect[self.entity] = true
@@ -648,10 +659,12 @@ e2function void runOnDisconnect(activate)
 	end
 end
 
+[nodiscard, deprecated = "Use the playerDisconnected event instead"]
 e2function number disconnectClk()
 	return disconnectrun
 end
 
+[nodiscard, deprecated = "Use the playerDisconnected event instead"]
 e2function entity lastDisconnectedPlayer()
 	return lastdisconnectedplayer
 end
