@@ -57,8 +57,8 @@ end
 
 --- Sets the velocity of the player.
 e2function void entity:plyApplyForce(vector force)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "applyforce") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "applyforce") then self:throw("You do not have access", nil) end
 
 	if check(force) then
 		this:SetVelocity(Vector(force[1],force[2],force[3]))
@@ -67,16 +67,16 @@ end
 
 --- Sets the position of the player.
 e2function void entity:plySetPos(vector pos)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setpos") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setpos") then self:throw("You do not have access", nil) end
 
 	this:SetPos(Vector(math.Clamp(pos[1],-16000,16000), math.Clamp(pos[2],-16000,16000), math.Clamp(pos[3],-16000,16000)))
 end
 
 --- Sets the angle of the player's camera.
 e2function void entity:plySetAng(angle ang)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setang") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setang") then self:throw("You do not have access", nil) end
 
 	local normalizedAng = Angle(ang[1], ang[2], ang[3])
 	normalizedAng:Normalize()
@@ -85,8 +85,8 @@ end
 
 --- Enable or disable the player's noclip.
 e2function void entity:plyNoclip(number activate)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "noclip") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "noclip") then self:throw("You do not have access", nil) end
 
 	if activate > 0 then
 		this:SetMoveType(MOVETYPE_NOCLIP)
@@ -97,54 +97,54 @@ end
 
 --- Sets the health of the player.
 e2function void entity:plySetHealth(number health)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "sethealth") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "sethealth") then self:throw("You do not have access", nil) end
 
 	this:SetHealth(math.Clamp(health, 0, 2^32/2-1))
 end
 
 --- Sets the armor of the player.
 e2function void entity:plySetArmor(number armor)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setarmor") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setarmor") then self:throw("You do not have access", nil) end
 
 	this:SetArmor(math.Clamp(armor, 0, 2^32/2-1))
 end
 
 --- Sets the mass of the player. default 85
 e2function void entity:plySetMass(number mass)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setmass") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setmass") then self:throw("You do not have access", nil) end
 
 	this:GetPhysicsObject():SetMass(math.Clamp(mass, 1, 50000))
 end
 
 --- Returns the mass of the player.
 e2function number entity:plyGetMass()
-	if not ValidPly(this) then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 
 	return this:GetPhysicsObject():GetMass()
 end
 
 --- Sets the jump power, eg. the velocity the player will applied to when he jumps. default 200 
 e2function void entity:plySetJumpPower(number jumpPower)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setjumppower") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setjumppower") then self:throw("You do not have access", nil) end
 
 	this:SetJumpPower(math.Clamp(jumpPower, 0, 2^32/2-1))
 end
 
 --- Returns the jump power of the player.
 e2function number entity:plyGetJumpPower()
-	if not ValidPly(this) then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 
 	return this:GetJumpPower()
 end
 
 --- Sets the gravity of the player. default 600
 e2function void entity:plySetGravity(number gravity)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setgravity") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setgravity") then self:throw("You do not have access", nil) end
 
 	if gravity == 0 then gravity = 1/10^10 end
 	this:SetGravity(gravity/600)
@@ -152,15 +152,15 @@ end
 
 --- Returns the gravity of the player.
 e2function number entity:plyGetGravity()
-	if not ValidPly(this) then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 
 	return this:GetGravity()*600
 end
 
 --- Sets the walk and run speed of the player. (run speed is double of the walk speed) default 200
 e2function void entity:plySetSpeed(number speed)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setspeed") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setspeed") then self:throw("You do not have access", nil) end
 
 
 	this:SetWalkSpeed(math.Clamp(speed, 1, 10000))
@@ -169,31 +169,31 @@ end
 
 --- Sets the run speed of the player. default 400
 e2function void entity:plySetRunSpeed(number speed)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setrunspeed") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setrunspeed") then self:throw("You do not have access", nil) end
 
 	this:SetRunSpeed(math.Clamp(speed*2, 1, 10000))
 end
 
 --- Sets the walk speed of the player. default 200
 e2function void entity:plySetWalkSpeed(number speed)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "setwalkspeed") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "setwalkspeed") then self:throw("You do not have access", nil) end
 
 	this:SetWalkSpeed(math.Clamp(speed, 1, 10000))
 end
 
 --- Returns the max speed of the player.
 e2function number entity:plyGetSpeed()
-	if not ValidPly(this) then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 
 	return this:GetWalkSpeed()
 end
 
 --- Resets the settings of the player.
 e2function void entity:plyResetSettings()
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "resetsettings") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "resetsettings") then self:throw("You do not have access", nil) end
 
 	this:Health(100)
 	this:GetPhysicsObject():SetMass(85)
@@ -206,8 +206,8 @@ end
 
 --- Force the player to enter a vehicle.
 e2function void entity:plyEnterVehicle(entity vehicle)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "entervehicle") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "entervehicle") then self:throw("You do not have access", nil) end
 	if not vehicle or not vehicle:IsValid() or not vehicle:IsVehicle() then return nil end
 
 
@@ -218,8 +218,8 @@ end
 
 --- Force the player to exit the vehicle he is in.
 e2function void entity:plyExitVehicle()
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "exitvehicle") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "exitvehicle") then self:throw("You do not have access", nil) end
 	if not this:InVehicle() then return nil end
 
 	this:ExitVehicle()
@@ -227,8 +227,8 @@ end
 
 --- Respawns the player.
 e2function void entity:plySpawn()
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "spawn") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "spawn") then self:throw("You do not have access", nil) end
 	if not this.e2PcLastSpawn then this.e2PcLastSpawn = CurTime()-1 end
 	if (CurTime() - this.e2PcLastSpawn) < 1 then return nil end
 	this.e2PcLastSpawn = CurTime()
@@ -252,8 +252,8 @@ end)
 
 --- Freezes the player.
 e2function void entity:plyFreeze(number freeze)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "freeze") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "freeze") then self:throw("You do not have access", nil) end
 
 	this.plycore_freezeby = self
 	this:Freeze(freeze == 1)
@@ -261,15 +261,15 @@ end
 
 --- Returns 1 if the player is frozen, 0 otherwise.
 e2function number entity:plyIsFrozen()
-	if not ValidPly(this) then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 
 	return this:IsFlagSet(FL_FROZEN)
 end
 
 --- Disables the noclip of the player.
 e2function void entity:plyDisableNoclip(number act)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "disablenoclip") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "disablenoclip") then self:throw("You do not have access", nil) end
 
 	this.plycore_noclipdiabledby = self
 	this:SetNWBool("PlyCore_DisableNoclip", act == 1)
@@ -285,8 +285,8 @@ end)
 
 --- Enables of disables the godmode of the player.
 e2function void entity:plyGod(number active)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "god") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "god") then self:throw("You do not have access", nil) end
 	if not active == 1 then active = 0 end
 
 	if active == 1 then
@@ -298,31 +298,31 @@ end
 
 --- Returns 1 if the player has godmode, 0 otherwise.
 e2function number entity:plyHasGod()
-	if not ValidPly(this) then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 
 	return this:HasGodMode() and 1 or 0
 end
 
 --- Ignites the player for a specific time. (in seconds)
 e2function void entity:plyIgnite(time)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "ignite") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "ignite") then self:throw("You do not have access", nil) end
 
 	this:Ignite(math.Clamp(time, 1, 3600))
 end
 
 --- Returns 1 if the player is ignited, 0 otherwise.
 e2function void entity:plyIgnite()
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "ignite") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "ignite") then self:throw("You do not have access", nil) end
 
 	this:Ignite(60)
 end
 
 --- Extinguishes the player.
 e2function void entity:plyExtinguish()
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "extinguish") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "extinguish") then self:throw("You do not have access", nil) end
 
 	this:Extinguish()
 end
@@ -347,7 +347,7 @@ end
 
 --- Sends a message to every player.
 e2function void sendMessage(string text)
-	if not hasAccess(self.player, nil, "globalmessage") then return nil end
+	if not hasAccess(self.player, nil, "globalmessage") then self:throw("You do not have access", nil) end
 
 	PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 	PrintMessage(HUD_PRINTTALK, text)
@@ -355,7 +355,7 @@ end
 
 --- Sends a message to every player in the center of the screen.
 e2function void sendMessageCenter(string text)
-	if not hasAccess(self.player, nil, "globalmessagecenter") then return nil end
+	if not hasAccess(self.player, nil, "globalmessagecenter") then self:throw("You do not have access", nil) end
 
 	PrintMessage(HUD_PRINTCONSOLE, text)
 	PrintMessage(HUD_PRINTCENTER, text)
@@ -365,8 +365,8 @@ end
 
 --- Sends a message to the player.
 e2function void entity:sendMessage(string text)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "message") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "message") then self:throw("You do not have access", nil) end
 
 	this:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 	this:PrintMessage(HUD_PRINTTALK, text)
@@ -374,8 +374,8 @@ end
 
 --- Sends a message to the player in the center of the screen.
 e2function void entity:sendMessageCenter(string text)
-	if not ValidPly(this) then return nil end
-	if not hasAccess(self.player, this, "messagecenter") then return nil end
+	if not ValidPly(this) then return self:throw("Invalid player", nil) end
+	if not hasAccess(self.player, this, "messagecenter") then self:throw("You do not have access", nil) end
 
 	this:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 	this:PrintMessage(HUD_PRINTCENTER, text)
@@ -387,8 +387,10 @@ end
 e2function void array:sendMessage(string text)
 	for _, ply in pairs(this) do
 		if not ValidPly(ply) then return nil end
-		if not hasAccess(self.player, ply, "message") then return nil end
+		if not hasAccess(self.player, ply, "message") then self:throw("You do not have access", nil) end
+	end
 
+	for _, ply in pairs(this) do
 		ply:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 		ply:PrintMessage(HUD_PRINTTALK, text)
 	end
@@ -398,8 +400,10 @@ end
 e2function void array:sendMessageCenter(string text)
 	for _, ply in pairs(this) do
 		if not ValidPly(ply) then return nil end
-		if not hasAccess(self.player, ply, "messagecenter") then return nil end
+		if not hasAccess(self.player, ply, "messagecenter") then self:throw("You do not have access", nil) end
+	end
 
+	for _, ply in pairs(this) do
 		ply:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 		ply:PrintMessage(HUD_PRINTCENTER, text)
 	end
@@ -488,7 +492,7 @@ end
 --- Sends a colored message to every player.
 e2function void sendMessageColor(array arr)
 	-- if not ValidPly(this) then return end
-	if not hasAccess(self.player, nil, "globalmessagecolor") then return nil end
+	if not hasAccess(self.player, nil, "globalmessagecolor") then self:throw("You do not have access", nil) end
 
 	printColorArray(self.player, player.GetAll(), arr)
 end
@@ -496,7 +500,7 @@ end
 --- Sends a colored message to every player.
 e2function void sendMessageColor(...)
 	-- if not ValidPly(this) then return end
-	if not hasAccess(self.player, nil, "globalmessagecolor") then return nil end
+	if not hasAccess(self.player, nil, "globalmessagecolor") then self:throw("You do not have access", nil) end
 
 	printColorVarArg(self.player, player.GetAll(), typeids, ...)
 end
@@ -504,7 +508,7 @@ end
 --- Sends a colored message to a player.
 e2function void entity:sendMessageColor(array arr)
 	if not ValidPly(this) then return end
-	if not hasAccess(self.player, this, "messagecolor") then return nil end
+	if not hasAccess(self.player, this, "messagecolor") then self:throw("You do not have access", nil) end
 
 	printColorArray(self.player, this, arr)
 end
@@ -512,7 +516,7 @@ end
 --- Sends a colored message to a player.
 e2function void entity:sendMessageColor(...)
 	if not ValidPly(this) then return end
-	if not hasAccess(self.player, this, "messagecolor") then return nil end
+	if not hasAccess(self.player, this, "messagecolor") then self:throw("You do not have access", nil) end
 
 	printColorVarArg(self.player, this, typeids, ...)
 end
@@ -523,8 +527,10 @@ e2function void array:sendMessageColor(array arr)
 
 	for _, ply in pairs(this) do
 		if not ValidPly(ply) then continue end
-		if not hasAccess(self.player, ply, "messagecolor") then continue end
+		if not hasAccess(self.player, ply, "messagecolor") then self:throw("You do not have access", nil) end
+	end
 
+	for _, ply in pairs(this) do
 		table.insert(plys, ply)
 	end
 
@@ -537,8 +543,10 @@ e2function void array:sendMessageColor(...)
 
 	for _, ply in pairs(this) do
 		if not ValidPly(ply) then continue end
-		if not hasAccess(self.player, ply, "messagecolor") then continue end
-
+		if not hasAccess(self.player, ply, "messagecolor") then self:throw("You do not have access", nil) end
+	end
+	
+	for _, ply in pairs(this) do
 		table.insert(plys, ply)
 	end
 
