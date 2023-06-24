@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Creates a GMA and publishes it to the Steam Workshop
+      - name: Publish to Steam Workshop
+        uses: Earu/GSW-action@V3.0
+        with:
+          account-name: ${{secrets.STEAM_NAME}}
+          account-password: ${{secrets.STEAM_PASSWORD}}
+          account-secret: ${{secrets.STEAM_SECRET}}
+          workshop-id: ${{vars.WORKSHOP_ID}}
+          addon-path: ${{env.GITHUB_WORKSPACE}}
