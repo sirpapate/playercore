@@ -1,11 +1,16 @@
 {
-	"title" 	 	:	"[E2] PlayerCore",
-	"type"  	 	:	"tool",
-	"tags"  	 	:	[ "build" ],
+	"id"		:	216044582,
+	"title" 	:	"[E2] PlayerCore",
+	"type"  	:	"tool",
+	"tags"  	:	[ "build" ],
 	"ignore"	:	[
 	        	"*.cmd",
 	        	"*.gma",
 	        	"addonid.txt",
-				".git*"
+				".git*",
+				"*.md",
+				".*",
+				"LICENSE",
+				"images/*"
 	]
 }

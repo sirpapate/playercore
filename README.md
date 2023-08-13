@@ -1,3 +1,6 @@
+[comment]: <> (## For more information, go to the [GitHub Page][GitHub Page])
+[comment]: <> (To convert this file in Steam format, use this website: https://steamdown.vercel.app/)
+
 # PlayerCore
 
 It's the PlyCore, an extension for the Expression 2 that add functions to manipulate players. All functions can be called on yourself or on other players if you have their prop protection rights.
@@ -16,26 +19,27 @@ Clone this repository into your `steamapps\common\GarrysMod\garrysmod\addons` fo
 
 ### Console Commands
 `sbox_e2_plycore`
-* `1` - Everyone can use the functions on Everyone.
-* `2` - People can use the functions only on their friends.
-* `3` - Only admins can use functions.
-* `4` - The functions of players setting are disabled.
+* "1" - Everyone can use the functions on Everyone.
+* "2" - People can use the functions only on their friends.
+* "3" - Only admins can use functions.
+* "4" - The functions of players setting are disabled.
 
 ### Lua
-Hook `PlyCoreCommand(ply, target, command)`
+__Hook__
+`PlyCoreCommand(ply, target, command)`
 
 Called when a player use a command of PlyCore.
 
-#### Arguments
-* `Player` - originator
-* `Player` - target
-* `string` - command
+__Arguments__
+* "Player" - originator
+* "Player" - target
+* "string" - command
 
-#### Return
-`boolean` - Return true to block the command.
+__Return__
+"boolean" - Return true to block the command.
 
 ## Functions
-The following functions are protected by Protection Prop. To use them on another player, you must have their rights. Look the command `sbox_e2_plycore`.
+The following functions are protected by Protection Prop. To use them on another player, you must have their rights. Look the command "sbox_e2_plycore".
 
 ### Basic Getters and Setters
 | Function                          | Return | Description                                                                                    |
@@ -96,3 +100,4 @@ The following functions are protected by Protection Prop. To use them on another
 
 [PlayerCore Workshop Page]: <https://steamcommunity.com/sharedfiles/filedetails/?id=216044582>
 [Expression 2 Core Collection]: <https://steamcommunity.com/workshop/filedetails/?id=726399057>
+[GitHub Page]: <https://github.com/sirpapate/playercore>
