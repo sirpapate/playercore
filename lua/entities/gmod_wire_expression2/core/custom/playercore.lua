@@ -53,6 +53,128 @@ local function check(v)
 end
 
 
+--[[******************************************************************************]]
+-- Stolen from Wire :)
+
+-- default delay for printing messages, adds one "charge" after this delay
+local defaultPrintDelay = {
+	["message"] = 0.3,
+}
+
+-- the amount of "charges" a player has by default
+local defaultMaxPrints = {
+	["message"] = 15,
+}
+
+-- default max print length
+local defaultMaxLength = game.SinglePlayer() and 10000 or 1000
+
+-- Contains the amount of "charges" a player has, i.e. the amount of print-statements can be executed before
+-- the messages being omitted. The defaultPrintDelay is the time required to add one additional charge to the
+-- player's account. The defaultMaxPrints variable are the charges the player starts with.
+local printDelays = {}
+
+-- Returns the table containing the player's charges or creatis if it it does not yet exist
+-- @param ply           player to get the table from, not validated
+-- @param target        target to get the table from, not validated
+-- @param type          type of the table to get, not validated
+-- @param maxCharges    amount of charges to set it the table has to be created
+-- @param chargesDelay  delay until a new charge is given, set it the table has to be created
+local function getDelaysOrCreate(ply, target, type, maxCharges, chargesDelay)
+	printDelays[type] = printDelays[type] or {}
+	printDelays[type][ply] = printDelays[type][ply] or {}
+	local printDelay = printDelays[type][ply][target]
+
+	if not printDelay then
+		-- if the player does not have an entry yet, add it
+		printDelay = { numCharges = maxCharges, lastTime = CurTime() }
+		printDelays[type][ply][target] = printDelay
+	end
+
+	return printDelay
+end
+
+-- Returns whether or not a player has "charges" for printing a message
+-- Additionally adds all new charges the player might have
+-- @param ply  player to check, not validated
+-- @param target  target to check, not validated
+local function canPrint(ply, target, type)
+	-- update the console variables just in case
+	local maxCharges = ply:GetInfoNum("wire_expression2_playercore_" .. type .. "_max", defaultMaxPrints[type])
+	local chargesDelay = ply:GetInfoNum("wire_expression2_playercore_" .. type .. "_delay", defaultPrintDelay[type])
+
+	local printDelay = getDelaysOrCreate(ply, target, type, maxCharges, chargesDelay)
+
+	local currentTime = CurTime()
+	if printDelay.numCharges < maxCharges then
+		-- check if the player "deserves" new charges
+		local timePassed = (currentTime - printDelay.lastTime)
+		if timePassed > chargesDelay then
+			if chargesDelay == 0 then
+				printDelay.lastTime = currentTime
+				printDelay.numCharges = maxCharges
+			else
+				local chargesToAdd = math.floor(timePassed / chargesDelay)
+				printDelay.lastTime = (currentTime - (timePassed % chargesDelay))
+				-- add "semi" charges the player might already have
+				printDelay.numCharges = printDelay.numCharges + chargesToAdd
+			end
+		end
+	end
+	-- we should clamp his charges for safety
+	if printDelay.numCharges > maxCharges then
+		printDelay.numCharges = maxCharges
+		-- remove the "semi" charges, otherwise the player has too many
+		printDelay.lastTime = currentTime
+	end
+
+	return printDelay and printDelay.numCharges > 0
+end
+
+-- Returns whether or not a player can currently print a message or if it will be omitted by the antispam
+-- Additionally removes one charge from the player's account
+-- @param ply  player to check, is not validated
+-- @param target  target to check, is not validated
+local function checkDelay(ply, target, type)
+	if canPrint(ply, target, type) then
+		local maxCharges = ply:GetInfoNum("wire_expression2_playercore_" .. type .. "_max", defaultMaxPrints[type])
+		local chargesDelay = ply:GetInfoNum("wire_expression2_playercore_" .. type .. "_delay", defaultPrintDelay[type])
+		local printDelay = getDelaysOrCreate(ply, target, type, maxCharges, chargesDelay)
+		printDelay.numCharges = printDelay.numCharges - 1
+		return true
+	end
+	return false
+end
+
+local e2PcLastEnterVehicle = {}
+local e2PcLastSpawn = {}
+registerCallback("destruct",function(self)
+	e2PcLastEnterVehicle[self] = nil
+	e2PcLastSpawn[self] = nil
+end)
+
+hook.Add("PlayerDisconnected", "e2_print_delays_player_dc", function(ply)
+	for _, typePrintDelays in pairs(printDelays) do
+		typePrintDelays[ply] = nil
+		
+		for _, playerPrintDelays in pairs(typePrintDelays) do
+			if playerPrintDelays[ply] then
+				playerPrintDelays[ply] = nil
+			end
+		end
+	end
+
+	for _, plyList in pairs(e2PcLastEnterVehicle) do
+		plyList[ply] = nil
+	end
+
+	for _, plyList in pairs(e2PcLastSpawn) do
+		plyList[ply] = nil
+	end
+end)
+
+--[[******************************************************************************]]
+
 -------------------------------------------------------------------------------------------------------------------------------
 
 --- Sets the velocity of the player.
@@ -345,20 +467,39 @@ end
 
 -- Message
 
+
 --- Sends a message to every player.
 e2function void sendMessage(string text)
 	if not hasAccess(self.player, nil, "globalmessage") then self:throw("You do not have access", nil) end
+	
+	for _, ply in pairs(player.GetAll()) do
+		if not ValidPly(ply) then return nil end
+		if not hasAccess(self.player, ply, "message") then self:throw("You do not have access", nil) end
+	end
 
-	PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
-	PrintMessage(HUD_PRINTTALK, text)
+	for _, ply in pairs(player.GetAll()) do
+		if not checkDelay(self.player, ply, "message") then continue end
+
+		ply:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
+		ply:PrintMessage(HUD_PRINTTALK, text)
+	end
 end
 
 --- Sends a message to every player in the center of the screen.
 e2function void sendMessageCenter(string text)
 	if not hasAccess(self.player, nil, "globalmessagecenter") then self:throw("You do not have access", nil) end
+	
+	for _, ply in pairs(player.GetAll()) do
+		if not ValidPly(ply) then return nil end
+		if not hasAccess(self.player, ply, "messagecenter") then self:throw("You do not have access", nil) end
+	end
 
-	PrintMessage(HUD_PRINTCONSOLE, text)
-	PrintMessage(HUD_PRINTCENTER, text)
+	for _, ply in pairs(player.GetAll()) do
+		if not checkDelay(self.player, ply, "message") then continue end
+
+		ply:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
+		ply:PrintMessage(HUD_PRINTCENTER, text)
+	end
 end
 
 --
@@ -367,6 +508,7 @@ end
 e2function void entity:sendMessage(string text)
 	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 	if not hasAccess(self.player, this, "message") then self:throw("You do not have access", nil) end
+	if not checkDelay(self.player, this, "message") then return end
 
 	this:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 	this:PrintMessage(HUD_PRINTTALK, text)
@@ -376,6 +518,7 @@ end
 e2function void entity:sendMessageCenter(string text)
 	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 	if not hasAccess(self.player, this, "messagecenter") then self:throw("You do not have access", nil) end
+	if not checkDelay(self.player, this, "message") then return end
 
 	this:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 	this:PrintMessage(HUD_PRINTCENTER, text)
@@ -391,6 +534,8 @@ e2function void array:sendMessage(string text)
 	end
 
 	for _, ply in pairs(this) do
+		if not checkDelay(self.player, this, "message") then continue end
+
 		ply:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 		ply:PrintMessage(HUD_PRINTTALK, text)
 	end
@@ -404,6 +549,8 @@ e2function void array:sendMessageCenter(string text)
 	end
 
 	for _, ply in pairs(this) do
+		if not checkDelay(self.player, this, "message") then continue end
+		
 		ply:PrintMessage(HUD_PRINTCONSOLE, self.player:Name() .. " send you the next message by an expression 2.")
 		ply:PrintMessage(HUD_PRINTCENTER, text)
 	end
@@ -420,8 +567,23 @@ local printColor_typeids = {
 	e = function(e) return IsValid(e) and e:IsPlayer() and e or "" end,
 }
 
-local function printColorVarArg(ply, target, typeids, ...)
-	local send_array = { ... }
+local printColor_types = {
+	number = tostring,
+	string = tostring,
+	Vector = function(v) return Color(v[1],v[2],v[3]) end,
+	table = function(tbl)
+		for i,v in pairs(tbl) do
+			if !isnumber(i) then return "" end
+			if !isnumber(v) then return "" end
+			if i < 1 or i > 4 then return "" end
+		end
+		return Color(tbl[1] or 0, tbl[2] or 0,tbl[3] or 0,tbl[4])
+	end,
+	Player = function(e) return IsValid(e) and e:IsPlayer() and e or "" end,
+}
+
+local function fromColorArgs(args, typeids)
+	local send_array = args
 
 	for i,tp in ipairs(typeids) do
 		if printColor_typeids[tp] then
@@ -431,20 +593,67 @@ local function printColorVarArg(ply, target, typeids, ...)
 		end
 	end
 
-	target = isentity(target) and {target} or target
-	target = target or player.GetAll()
+	return send_array
+end
 
-	local plys = {}
-	for _, ply in pairs(target) do
-		if ValidPly(ply) then
-			table.insert(plys, ply)
+local function fromColorArray(arr)
+	local send_array = arr
+
+	for i,tp in ipairs_map(arr,type) do
+		if printColor_types[tp] then
+			send_array[i] = printColor_types[tp](arr[i])
+		else
+			send_array[i] = ""
 		end
 	end
 
-	net.Start("wire_expression2_playercore_sendmessage")
-		net.WriteEntity(ply)
-		net.WriteTable(send_array)
-	net.Send(plys)
+	return send_array
+end
+
+
+local function printColor(ply, targets, send_array)
+	targets = isentity(targets) and {targets} or targets
+	targets = targets or player.GetAll()
+
+	local plys = {}
+	for _, target in pairs(targets) do
+		if ValidPly(target) and checkDelay(ply, target, "messagecolor") then
+			table.insert(plys, target)
+		end
+	end
+
+	for _, target in pairs(plys) do
+		local targetMaxLength = target:GetInfoNum("wire_expression2_playercore_message_max_length", defaultMaxLength)
+		local cumulatedLength = 0
+
+		local array_to_send = {}
+
+		for i, v in ipairs(send_array) do
+			if type(v) == "string" then
+				if string.len(v) + cumulatedLength > targetMaxLength then
+					array_to_send[i] = E2Lib.limitString(v, targetMaxLength - cumulatedLength)
+					break
+				end
+				
+				cumulatedLength = cumulatedLength + string.len(v)
+			elseif type(v) == "Player" then
+				if string.len(v:GetName()) + cumulatedLength > targetMaxLength then
+					array_to_send[i] = v
+					array_to_send[i + 1] = E2Lib.limitString(" ", 0)
+					break
+				end
+				
+				cumulatedLength = cumulatedLength + string.len(v:GetName())
+			end
+
+			array_to_send[i] = v
+		end
+
+		net.Start("wire_expression2_playercore_sendmessage")
+			net.WriteEntity(ply)
+			net.WriteTable(array_to_send)
+		net.Send(target)
+	end
 end
 
 local printColor_types = {
@@ -462,47 +671,20 @@ local printColor_types = {
 	Player = function(e) return IsValid(e) and e:IsPlayer() and e or "" end,
 }
 
-local function printColorArray(ply, target, arr)
-	local send_array = {}
-
-	for i,tp in ipairs_map(arr,type) do
-		if printColor_types[tp] then
-			send_array[i] = printColor_types[tp](arr[i])
-		else
-			send_array[i] = ""
-		end
-	end
-
-	target = isentity(target) and {target} or target
-	target = target or player.GetAll()
-
-	local plys = {}
-	for _, ply in pairs(target) do
-		if ValidPly(ply) then
-			table.insert(plys, ply)
-		end
-	end
-
-	net.Start("wire_expression2_playercore_sendmessage")
-		net.WriteEntity(ply)
-		net.WriteTable(send_array)
-	net.Send(plys)
-end
-
 --- Sends a colored message to every player.
 e2function void sendMessageColor(array arr)
 	-- if not ValidPly(this) then return end
 	if not hasAccess(self.player, nil, "globalmessagecolor") then self:throw("You do not have access", nil) end
 
-	printColorArray(self.player, player.GetAll(), arr)
+	printColor(self.player, player.GetAll(), fromColorArray(arr))
 end
 
 --- Sends a colored message to every player.
-e2function void sendMessageColor(...)
+e2function void sendMessageColor(...args)
 	-- if not ValidPly(this) then return end
 	if not hasAccess(self.player, nil, "globalmessagecolor") then self:throw("You do not have access", nil) end
 
-	printColorVarArg(self.player, player.GetAll(), typeids, ...)
+	printColor(self.player, player.GetAll(), fromColorArgs(args, typeids))
 end
 
 --- Sends a colored message to a player.
@@ -510,15 +692,15 @@ e2function void entity:sendMessageColor(array arr)
 	if not ValidPly(this) then return end
 	if not hasAccess(self.player, this, "messagecolor") then self:throw("You do not have access", nil) end
 
-	printColorArray(self.player, this, arr)
+	printColor(self.player, this, fromColorArray(arr))
 end
 
 --- Sends a colored message to a player.
-e2function void entity:sendMessageColor(...)
+e2function void entity:sendMessageColor(...args)
 	if not ValidPly(this) then return end
 	if not hasAccess(self.player, this, "messagecolor") then self:throw("You do not have access", nil) end
 
-	printColorVarArg(self.player, this, typeids, ...)
+	printColor(self.player, this, fromColorArgs(args, typeids))
 end
 
 --- Sends a colored message to a list of players.
@@ -534,11 +716,11 @@ e2function void array:sendMessageColor(array arr)
 		table.insert(plys, ply)
 	end
 
-	printColorArray(self.player, plys, arr)
+	printColor(self.player, plys, fromColorArray(arr))
 end
 
 --- Sends a colored message to a list of players.
-e2function void array:sendMessageColor(...)
+e2function void array:sendMessageColor(...args)
 	local plys = {}
 
 	for _, ply in pairs(this) do
@@ -550,7 +732,7 @@ e2function void array:sendMessageColor(...)
 		table.insert(plys, ply)
 	end
 
-	printColorVarArg(self.player, plys, typeids, ...)
+	printColor(self.player, plys, fromColorArgs(args, typeids))
 end
 
 

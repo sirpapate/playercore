@@ -68,3 +68,7 @@ hook.Add("PlayerNoClip", "PlyCore", function(ply, state)
 		return false
 	end
 end)
+
+CreateClientConVar( "wire_expression2_playercore_message_max", 15, true, true )
+CreateClientConVar( "wire_expression2_playercore_message_delay", 0.3, true, true )
+CreateClientConVar( "wire_expression2_playercore_message_max_length", 1000, true, true )
