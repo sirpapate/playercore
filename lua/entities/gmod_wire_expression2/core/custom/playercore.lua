@@ -332,6 +332,11 @@ e2function void entity:plyEnterVehicle(entity vehicle)
 	if not hasAccess(self.player, this, "entervehicle") then self:throw("You do not have access", nil) end
 	if not vehicle or not vehicle:IsValid() or not vehicle:IsVehicle() then return nil end
 
+	e2PcLastEnterVehicle[self] = e2PcLastEnterVehicle[self] or {}
+	e2PcLastEnterVehicle[self][this] = e2PcLastEnterVehicle[self][this] or 0
+	if (CurTime() - e2PcLastEnterVehicle[self][this]) < 1 then return nil end
+	e2PcLastEnterVehicle[self][this] = CurTime()
+
 
 	if this:InVehicle() then this:ExitVehicle() end
 
@@ -351,9 +356,11 @@ end
 e2function void entity:plySpawn()
 	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 	if not hasAccess(self.player, this, "spawn") then self:throw("You do not have access", nil) end
-	if not this.e2PcLastSpawn then this.e2PcLastSpawn = CurTime()-1 end
-	if (CurTime() - this.e2PcLastSpawn) < 1 then return nil end
-	this.e2PcLastSpawn = CurTime()
+	
+	e2PcLastSpawn[self] = e2PcLastSpawn[self] or {}
+	e2PcLastSpawn[self][this] = e2PcLastSpawn[self][this] or 0
+	if (CurTime() - e2PcLastSpawn[self][this]) < 1 then return nil end
+	e2PcLastSpawn[self][this] = CurTime()
 
 	this:Spawn()
 end
