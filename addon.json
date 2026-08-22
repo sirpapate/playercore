@@ -5,6 +5,7 @@
 	"tags"  	:	[ "build" ],
 	"ignore"	:	[
 	        	"*.cmd",
+	        	"*.sh",
 	        	"*.gma",
 	        	"addonid.txt",
 				".git*",
