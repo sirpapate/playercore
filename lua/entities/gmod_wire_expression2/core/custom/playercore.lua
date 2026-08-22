@@ -330,13 +330,13 @@ e2function void entity:plyResetSettings()
 	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 	if not assertAccess(self, self.player, this, "resetsettings") then return end
 
-	this:Health(100)
+	this:SetHealth(100)
 	this:GetPhysicsObject():SetMass(85)
 	this:SetJumpPower(200)
 	this:SetGravity(1)
 	this:SetWalkSpeed(200)
 	this:SetRunSpeed(400)
-	this:Armor(0)
+	this:SetArmor(0)
 end
 
 --- Force the player to enter a vehicle.
@@ -453,7 +453,7 @@ e2function void entity:plyIgnite(time)
 	this:Ignite(math.Clamp(time, 1, 3600))
 end
 
---- Returns 1 if the player is ignited, 0 otherwise.
+--- Ignites the player for 60 seconds.
 e2function void entity:plyIgnite()
 	if not ValidPly(this) then return self:throw("Invalid player", nil) end
 	if not assertAccess(self, self.player, this, "ignite") then return end
