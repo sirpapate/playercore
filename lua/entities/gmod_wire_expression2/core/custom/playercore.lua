@@ -70,11 +70,13 @@ end
 -- default delay for printing messages, adds one "charge" after this delay
 local defaultPrintDelay = {
 	["message"] = 0.3,
+	["messagecolor"] = 0.3,
 }
 
 -- the amount of "charges" a player has by default
 local defaultMaxPrints = {
 	["message"] = 15,
+	["messagecolor"] = 15,
 }
 
 -- default max print length
